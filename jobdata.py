@@ -10,7 +10,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+import logging
 import openpyxl
+
+# 로깅 설정
+logging.basicConfig(filename='my_log_file.txt', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 # ChromeOptions 및 WebDriverManager 설정
 options = webdriver.ChromeOptions()
@@ -68,8 +73,16 @@ mainLink = ("https://www.work.go.kr/empInfo/empInfoSrch/list/dtlEmpSrchList.do?"
         "&keywordBusiNm=N&preferentialGbn=&rot3WorkYn=&pfMatterPreferential=&regDateEndt=&staAreaLineInfo1=11000"
         f"&staAreaLineInfo2=1&pageIndex=1&termContractMmcnt=&careerFrom=&laborHrShortYn=#viewSPL")
 
+driver = webdriver.Chrome(service=service, options=options)
+driver.get(mainLink)
+
+maxPagelen = driver.find_element(By.CSS_SELECTOR, ".paging_direct").text.split(" ").pop(1)
+print(maxPagelen)
+
+driver.close()
+
 # 메인 링크 입력 받기
-for curr in range(2, maxPagelen + 1):
+for curr in range(2, int(maxPagelen) + 1):
     # 메인 WebDriver 생성 및 메인 링크 접속
     driver = webdriver.Chrome(service=service, options=options)
     driver.get(mainLink)
