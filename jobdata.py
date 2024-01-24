@@ -1,3 +1,7 @@
+import os.path
+import sys
+import time
+from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
@@ -5,27 +9,19 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support import expected_conditions as EC
-from openpyxl import Workbook
-import os.path
-import sys
-import time
+import openpyxl
 
-# input = sys.stdin.readline
-
+# ChromeOptions 및 WebDriverManager 설정
 options = webdriver.ChromeOptions()
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_argument("headless")
-options.add_argument('--log-level=3') # 브라우저 로그 레벨을 낮춤
-options.add_argument('--disable-loging') # 로그를 남기지 않음
+options.add_argument('--log-level=3')
+options.add_argument('--disable-loging')
 options.add_experimental_option("useAutomationExtension", False)
 service = Service(executable_path=ChromeDriverManager().install())
-assertResult = ""
-flag = False
-mainLink = ""
+
 answer업종 = ""
 answer고용허가제 = ""
 answer직무내용 = ""
@@ -33,18 +29,23 @@ answer모집인원 = ""
 answer근무지 = ""
 answer임금조건 = ""
 
-workbook = Workbook()
+# 기타 변수 정의
+excelPath = "C:\jobdata\jobData.xlsx"
+workbook = openpyxl.Workbook()
+
+# 기존 엑셀 파일이 존재하는 경우 불러오기
+if os.path.exists(excelPath):
+    workbook = openpyxl.load_workbook(excelPath)
+
+# 엑셀 시트 및 컬럼 설정
 sheet = workbook.active
 sheet.column_dimensions['A'].width = 20
 sheet.column_dimensions['B'].width = 50
 sheet.column_dimensions['C'].width = 20
 sheet.column_dimensions['D'].width = 20
 sheet.column_dimensions['E'].width = 50
-
-
 sheet.print_options.horizontalCentered = True
 sheet.print_options.verticalCentered = True
-
 sheet['A1'] = "업종"
 sheet['B1'] = "직무내용"
 sheet['C1'] = "모집인원"
@@ -52,67 +53,77 @@ sheet['D1'] = "근무지역"
 sheet['E1'] = "임금조건"
 sheet['F1'] = "URL 공고 주소"
 
+# 메인 링크 입력 받기
 mainLink = input(" 웹 주소 : ")
 
+# 메인 WebDriver 생성 및 메인 링크 접속
 driver = webdriver.Chrome(service=service, options=options)
 driver.get(mainLink)
-# driver.implicitly_wait(120)
 
+# 메인 페이지에서 joblinks 수집
 joblinks = driver.find_elements(By.CLASS_NAME, 'cp-info-in')
 print(len(joblinks))
 
+# joblinks 반복 처리
 for linkss in joblinks:
     driverDetail = webdriver.Chrome(service=service, options=options)
-
+    
     aTag = linkss.find_element(By.TAG_NAME, "a")
     aTagLink = aTag.get_attribute("href")
-    
-    driverDetail.get(aTagLink)
-    # driverDetail.implicitly_wait(5)
-    elements_careers_table = set(driverDetail.find_elements(By.CLASS_NAME, 'careers-table'))
-    elements_업종_right = driverDetail.find_element(By.CLASS_NAME, 'right')
-    elements_업종_li = elements_업종_right.find_elements(By.TAG_NAME, "li")
-    elements_업종_strong = elements_업종_right.find_element(By.CLASS_NAME, "info").find_elements(By.TAG_NAME, "strong")
-    
-    for idx, val in enumerate(elements_업종_strong):
-        if(val.text == "업종"):
-            answer업종 = elements_업종_li.pop(idx).find_element(By.TAG_NAME, "div").text
-    
-    for ele in elements_careers_table:
-        tableTh = ele.find_elements(By.TAG_NAME, "th")
-        
-        for idx, val in enumerate(tableTh):
-            if(val.text == "직무내용"):
-                answers = ele.find_element(By.TAG_NAME, "td")
-                answer직무내용 = answers.text
-                
-            if(val.text == "모집인원"):
-                answers = ele.find_elements(By.TAG_NAME, "td")
-                answer모집인원 = answers.pop(idx).text                
-                
-            if(val.text == "근무예정지"):
-                answers = ele.find_elements(By.TAG_NAME, "td")
-                answer근무지 = answers.pop(idx).text
-                
-            if(val.text == "임금조건"):
-                answers = ele.find_elements(By.TAG_NAME, "td")
-                answer임금조건 = answers.pop(idx).text
-                
-            if(val.text == "고용허가제"):
-                answers = ele.find_elements(By.TAG_NAME, "td")
-                answer고용허가제 = answers.pop(idx).text
-                
-                if(answer고용허가제 != " "):
-                    assertResult = aTagLink
-                    print(assertResult)
-                    sheet.append([answer업종, answer직무내용, answer모집인원, answer근무지, answer임금조건, assertResult])
-                    
-                    
-    driverDetail.close()
-    
 
+    driverDetail.get(aTagLink)
+    
+    try:
+        elements_careers_table = set(driverDetail.find_elements(By.CLASS_NAME, 'careers-table'))
+        elements_업종_right = driverDetail.find_element(By.CLASS_NAME, 'right')
+        elements_업종_li = elements_업종_right.find_elements(By.TAG_NAME, "li")
+        elements_업종_strong = elements_업종_right.find_element(By.CLASS_NAME, "info").find_elements(By.TAG_NAME, "strong")
+
+        # 업종 정보 수집
+        for idx, val in enumerate(elements_업종_strong):
+            if val.text == "업종":
+                answer업종 = elements_업종_li.pop(idx).find_element(By.TAG_NAME, "div").text
+
+        # 나머지 정보 수집
+        for ele in elements_careers_table:
+            tableTh = ele.find_elements(By.TAG_NAME, "th")
+
+            for idx, val in enumerate(tableTh):
+                if val.text == "직무내용":
+                    answers = ele.find_element(By.TAG_NAME, "td")
+                    answer직무내용 = answers.text
+
+                if val.text == "모집인원":
+                    answers = ele.find_elements(By.TAG_NAME, "td")
+                    answer모집인원 = answers.pop(idx).text
+
+                if val.text == "근무예정지":
+                    answers = ele.find_elements(By.TAG_NAME, "td")
+                    answer근무지 = answers.pop(idx).text
+
+                if val.text == "임금조건":
+                    answers = ele.find_elements(By.TAG_NAME, "td")
+                    answer임금조건 = answers.pop(idx).text
+
+                if val.text == "고용허가제":
+                    answers = ele.find_elements(By.TAG_NAME, "td")
+                    answer고용허가제 = answers.pop(idx).text
+
+                    # 고용허가제가 있을 경우 데이터 저장
+                    if answer고용허가제 != " ":
+                        assertResult = aTagLink
+                        print(assertResult)
+                        sheet.append([answer업종, answer직무내용, answer모집인원, answer근무지, answer임금조건, assertResult])
+                        
+    except NoSuchElementException as e:
+        print(f"요소를 찾을 수 없습니다. 에러: {e.msg}")
+        pass  # 요소를 찾을 수 없으면 패스              
+    finally:
+        driverDetail.close()
+
+# 엑셀 저장 및 WebDriver 종료
 workbook.save("C:\jobdata\jobData.xlsx")
-print("end")
+print("종료")
 driver.close()
 
 driverDetail.quit()
