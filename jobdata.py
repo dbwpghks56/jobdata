@@ -54,22 +54,22 @@ sheet['E1'] = "임금조건"
 sheet['F1'] = "URL 공고 주소"
 maxPagelen = 12
 
-# 메인 링크 입력 받기
-for curr in range(1, maxPagelen + 1):
-    mainLink = ("https://www.work.go.kr/empInfo/empInfoSrch/list/dtlEmpSrchList.do?"
+mainLink = ("https://www.work.go.kr/empInfo/empInfoSrch/list/dtlEmpSrchList.do?"
         "careerTo=&keywordJobCd=&occupation=&templateInfo=&shsyWorkSecd=&rot2WorkYn=&payGbn=&resultCnt=10&keywordJobCont=N"
         "&cert=&cloDateStdt=&moreCon=more&minPay=&codeDepth2Info=11000&isChkLocCall=&sortFieldInfo=DATE&major="
         "&resrDutyExcYn=&eodwYn=&sortField=DATE&staArea=&sortOrderBy=DESC&keyword=&termSearchGbn=all&carrEssYns="
         "&benefitSrchAndOr=O&disableEmpHopeGbn=&webIsOut=&actServExcYn=&maxPay=&keywordStaAreaNm=N&emailApplyYn="
         "&listCookieInfo=DTL&pageCode=&codeDepth1Info=11000&keywordEtcYn=&publDutyExcYn=&keywordJobCdSeqNo=&exJobsCd="
         "&templateDepthNmInfo=&computerPreferential=&regDateStdt=&employGbn=&empTpGbcd=&region=&infaYn=&resultCntInfo=10"
-        f"&siteClcd=all&cloDateEndt=&sortOrderByInfo=DESC&currntPageNo={curr}&indArea=&careerTypes=&searchOn=Y&tlmgYn=&subEmpHopeYn="
+        f"&siteClcd=all&cloDateEndt=&sortOrderByInfo=DESC&currntPageNo=1&indArea=&careerTypes=&searchOn=Y&tlmgYn=&subEmpHopeYn="
         "&academicGbn=&templateDepthNoInfo=&foriegn=&mealOfferClcd=&station=&moerButtonYn=&holidayGbn=&srcKeyword="
         "&enterPriseGbn=all&academicGbnoEdu=noEdu&cloTermSearchGbn=all&keywordWantedTitle=N&stationNm=&benefitGbn="
         "&keywordFlag=&notSrcKeyword=&essCertChk=&isEmptyHeader=&depth2SelCode=&_csrf=dde2822b-952e-477d-81c3-17bb0c5d1775"
         "&keywordBusiNm=N&preferentialGbn=&rot3WorkYn=&pfMatterPreferential=&regDateEndt=&staAreaLineInfo1=11000"
-        f"&staAreaLineInfo2=1&pageIndex={curr}&termContractMmcnt=&careerFrom=&laborHrShortYn=#viewSPL")
-    
+        f"&staAreaLineInfo2=1&pageIndex=1&termContractMmcnt=&careerFrom=&laborHrShortYn=#viewSPL")
+
+# 메인 링크 입력 받기
+for curr in range(2, maxPagelen + 1):
     # 메인 WebDriver 생성 및 메인 링크 접속
     driver = webdriver.Chrome(service=service, options=options)
     driver.get(mainLink)
@@ -133,13 +133,17 @@ for curr in range(1, maxPagelen + 1):
                             print(assertResult)
                             sheet.append([answer업종, answer직무내용, answer모집인원, answer근무지, answer임금조건, assertResult])
                             workbook.save("C:\jobdata\jobData.xlsx")
-                            
+        
         except NoSuchElementException as e:
             print(f"요소를 찾을 수 없습니다. 에러: {e.msg}")
-            pass  # 요소를 찾을 수 없으면 패스              
+            pass  # 요소를 찾을 수 없으면 패스 
+        except Exception as e2:
+            print(f"에러 요인 {e2}")
+            pass             
         finally:
             driverDetail.close()
-            
+    
+    mainLink = mainLink.replace(f"pageIndex={curr-1}", f"pageIndex={curr}")
     driver.close()
 
 # 엑셀 저장 및 WebDriver 종료
