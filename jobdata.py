@@ -59,6 +59,8 @@ sheet['E1'] = "임금조건"
 sheet['F1'] = "URL 공고 주소"
 maxPagelen = 12
 
+currPage = input("검색 시작할 페이지 : ")
+
 mainLink = ("https://www.work.go.kr/empInfo/empInfoSrch/list/dtlEmpSrchList.do?"
         "careerTo=&keywordJobCd=&occupation=&templateInfo=&shsyWorkSecd=&rot2WorkYn=&payGbn=&resultCnt=10&keywordJobCont=N"
         "&cert=&cloDateStdt=&moreCon=more&minPay=&codeDepth2Info=11000&isChkLocCall=&sortFieldInfo=DATE&major="
@@ -71,7 +73,7 @@ mainLink = ("https://www.work.go.kr/empInfo/empInfoSrch/list/dtlEmpSrchList.do?"
         "&enterPriseGbn=all&academicGbnoEdu=noEdu&cloTermSearchGbn=all&keywordWantedTitle=N&stationNm=&benefitGbn="
         "&keywordFlag=&notSrcKeyword=&essCertChk=&isEmptyHeader=&depth2SelCode=&_csrf=dde2822b-952e-477d-81c3-17bb0c5d1775"
         "&keywordBusiNm=N&preferentialGbn=&rot3WorkYn=&pfMatterPreferential=&regDateEndt=&staAreaLineInfo1=11000"
-        f"&staAreaLineInfo2=1&pageIndex=1&termContractMmcnt=&careerFrom=&laborHrShortYn=#viewSPL")
+        f"&staAreaLineInfo2=1&pageIndex={currPage}&termContractMmcnt=&careerFrom=&laborHrShortYn=#viewSPL")
 
 driver = webdriver.Chrome(service=service, options=options)
 driver.get(mainLink)
@@ -82,7 +84,7 @@ print(maxPagelen)
 driver.close()
 
 # 메인 링크 입력 받기
-for curr in range(2, int(maxPagelen) + 1):
+for curr in range(int(currPage)+1, int(maxPagelen) + 1):
     # 메인 WebDriver 생성 및 메인 링크 접속
     driver = webdriver.Chrome(service=service, options=options)
     driver.get(mainLink)
