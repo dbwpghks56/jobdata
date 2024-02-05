@@ -33,6 +33,11 @@ answer직무내용 = ""
 answer모집인원 = ""
 answer근무지 = ""
 answer임금조건 = ""
+answer담당자이름 = ""
+answer담당자전화번호 = ""
+answer담당자휴대폰 = ""
+answer담당자이메일 = ""
+saveFlag = False
 
 # 기타 변수 정의
 excelPath = "C:\jobdata\jobData.xlsx"
@@ -49,6 +54,10 @@ sheet.column_dimensions['B'].width = 50
 sheet.column_dimensions['C'].width = 20
 sheet.column_dimensions['D'].width = 20
 sheet.column_dimensions['E'].width = 50
+sheet.column_dimensions['F'].width = 20
+sheet.column_dimensions['G'].width = 20
+sheet.column_dimensions['H'].width = 20
+sheet.column_dimensions['I'].width = 20
 sheet.print_options.horizontalCentered = True
 sheet.print_options.verticalCentered = True
 sheet['A1'] = "업종"
@@ -56,7 +65,11 @@ sheet['B1'] = "직무내용"
 sheet['C1'] = "모집인원"
 sheet['D1'] = "근무지역"
 sheet['E1'] = "임금조건"
-sheet['F1'] = "URL 공고 주소"
+sheet['F1'] = "담당자 이름"
+sheet['G1'] = "담당자 전화번호"
+sheet['H1'] = "담당자 휴대폰 번호"
+sheet['I1'] = "담당자 이메일"
+sheet['J1'] = "URL 공고 주소"
 maxPagelen = 12
 
 currPage = input("검색 시작할 페이지 : ")
@@ -137,6 +150,22 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
                     if val.text == "임금조건":
                         answers = ele.find_elements(By.TAG_NAME, "td")
                         answer임금조건 = answers.pop(idx).text
+                        
+                    if val.text == "담당자":
+                        answers = ele.find_elements(By.TAG_NAME, "td")
+                        answer담당자이름 = answers.pop(idx).text
+                        
+                    if val.text == "전화번호":
+                        answers = ele.find_elements(By.TAG_NAME, "td")
+                        answer담당자전화번호 = answers.pop(idx).text
+                        
+                    if val.text == "휴대폰번호":
+                        answers = ele.find_elements(By.TAG_NAME, "td")
+                        answer담당자휴대폰 = answers.pop(idx).text
+                        
+                    if val.text == "이메일":
+                        answers = ele.find_elements(By.TAG_NAME, "td")
+                        answer담당자이메일 = answers.pop(idx).text
 
                     if val.text == "고용허가제":
                         answers = ele.find_elements(By.TAG_NAME, "td")
@@ -144,11 +173,16 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
 
                         # 고용허가제가 있을 경우 데이터 저장
                         if answer고용허가제 != " ":
+                            saveFlag = True
                             assertResult = aTagLink
                             print(assertResult)
-                            sheet.append([answer업종, answer직무내용, answer모집인원, answer근무지, answer임금조건, assertResult])
-                            workbook.save("C:\jobdata\jobData.xlsx")
-        
+
+            if saveFlag == True:
+                sheet.append([answer업종, answer직무내용, answer모집인원, answer근무지, answer임금조건,
+                                        answer담당자이름, answer담당자전화번호, answer담당자휴대폰, answer담당자이메일, assertResult])
+                workbook.save("C:\jobdata\jobData.xlsx")
+                saveFlag = False
+            
         except NoSuchElementException as e:
             print(f"요소를 찾을 수 없습니다. 에러: {e.msg}")
             pass  # 요소를 찾을 수 없으면 패스 
