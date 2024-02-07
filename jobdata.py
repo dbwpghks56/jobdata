@@ -1,5 +1,6 @@
 import logging
 import os.path
+import pickle
 import sys
 import time
 from urllib.parse import parse_qs, urlparse
@@ -29,6 +30,11 @@ def extract_param_value(url):
 # 로깅 설정
 logging.basicConfig(filename='my_log_file.txt', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# login driver 설정
+optionsLogin = webdriver.ChromeOptions()
+optionsLogin.add_experimental_option('excludeSwitches', ['enable-logging'])
+optionsLogin.add_experimental_option("excludeSwitches", ["enable-automation"])
+optionsLogin.add_experimental_option("useAutomationExtension", False)
 
 # ChromeOptions 및 WebDriverManager 설정
 options = webdriver.ChromeOptions()
@@ -53,6 +59,7 @@ answer담당자이메일 = ""
 saveFlag = False
 stopFlag = False
 
+cookiefilelink = "worknetlogin.pkl"
 firstfilelink = "firstInfo.txt"
 # 기타 변수 정의
 excelPath = "C:\jobdata\jobData.xlsx"
@@ -73,6 +80,7 @@ sheet.column_dimensions['F'].width = 20
 sheet.column_dimensions['G'].width = 20
 sheet.column_dimensions['H'].width = 20
 sheet.column_dimensions['I'].width = 20
+sheet.column_dimensions['J'].width = 200
 sheet.print_options.horizontalCentered = True
 sheet.print_options.verticalCentered = True
 sheet['A1'] = "업종"
@@ -88,7 +96,8 @@ sheet['J1'] = "URL 공고 주소"
 maxPagelen = 12
 
 currPage = input("검색 시작할 페이지 : ")
-
+loginRedirectLink = ("https://www.work.go.kr/seekWantedMain.do")
+loginMainLink = ("https://www.work24.go.kr/cm/z/b/0210/openLginPage.do?refSite=EAE05&refUrl=/g24Api/g24InterfaceSsoLogin.do?refUrl=/seekWantedMain.do")
 mainLink = ("https://www.work.go.kr/empInfo/empInfoSrch/list/dtlEmpSrchList.do?"
         "careerTo=&keywordJobCd=&occupation=&templateInfo=&shsyWorkSecd=&rot2WorkYn=&payGbn=&resultCnt=10&keywordJobCont=N"
         "&cert=&cloDateStdt=&moreCon=more&minPay=&codeDepth2Info=11000&isChkLocCall=&sortFieldInfo=DATE&major="
@@ -102,6 +111,34 @@ mainLink = ("https://www.work.go.kr/empInfo/empInfoSrch/list/dtlEmpSrchList.do?"
         "&keywordFlag=&notSrcKeyword=&essCertChk=&isEmptyHeader=&depth2SelCode=&_csrf=dde2822b-952e-477d-81c3-17bb0c5d1775"
         "&keywordBusiNm=N&preferentialGbn=&rot3WorkYn=&pfMatterPreferential=&regDateEndt=&staAreaLineInfo1=11000"
         f"&staAreaLineInfo2=1&pageIndex={currPage}&termContractMmcnt=&careerFrom=&laborHrShortYn=#viewSPL")
+
+loginDriver = webdriver.Chrome(service=service, options=optionsLogin)
+
+try:
+    loginDriver.get(loginMainLink)
+    wait = WebDriverWait(loginDriver, 120)
+    
+    def check_url(loginDriver):
+        return loginRedirectLink in loginDriver.current_url and loginMainLink not in loginDriver.current_url
+        
+        # 조건 함수를 사용하여 기다리기
+    wait.until(check_url)
+    
+    print(loginDriver.current_url)
+    
+    if loginRedirectLink in loginDriver.current_url and loginDriver.current_url != loginMainLink :
+        print("hello")
+        pickle.dump(loginDriver.get_cookies(), open(cookiefilelink, "wb"))
+            
+except Exception as e:
+    print(e)
+    pass
+
+finally:
+    pickle.dump(loginDriver.get_cookies(), open(cookiefilelink, "wb"))
+    loginDriver.close()
+
+
 
 driver = webdriver.Chrome(service=service, options=options)
 driver.get(mainLink)
@@ -147,8 +184,17 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
             firstFile.write(wantedAuth)
                 
         firstFile.close()
+        
+        if os.path.exists(cookiefilelink):
+            workCookies = pickle.load(open(cookiefilelink, "rb"))
+            driverDetail.get(loginRedirectLink)
+            driverDetail.delete_all_cookies()
+            
+            for cookie in workCookies:
+                # cookie.pop("domain")
+                driverDetail.add_cookie(cookie)
 
-        driverDetail.get(aTagLink)
+            driverDetail.get(aTagLink)
         
         try:
             elements_careers_table = set(driverDetail.find_elements(By.CLASS_NAME, 'careers-table'))
@@ -234,4 +280,5 @@ workbook.save("C:\jobdata\jobData.xlsx")
 print("종료")
 
 driverDetail.quit()
+loginDriver.quit()
 driver.quit()
