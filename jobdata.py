@@ -1,17 +1,30 @@
+import logging
 import os.path
 import sys
 import time
-from selenium.common.exceptions import NoSuchElementException
+from urllib.parse import parse_qs, urlparse
+
+import openpyxl
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
-import logging
-import openpyxl
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
+
+
+# url param 추출
+def extract_param_value(url):
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
+    
+    if "wantedAuthNo" in query_params:
+        return query_params["wantedAuthNo"][0]
+    else:
+        return None
 
 # 로깅 설정
 logging.basicConfig(filename='my_log_file.txt', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -38,7 +51,9 @@ answer담당자전화번호 = ""
 answer담당자휴대폰 = ""
 answer담당자이메일 = ""
 saveFlag = False
+stopFlag = False
 
+firstfilelink = "firstInfo.txt"
 # 기타 변수 정의
 excelPath = "C:\jobdata\jobData.xlsx"
 workbook = openpyxl.Workbook()
@@ -104,18 +119,34 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
 
     # 메인 페이지에서 joblinks 수집
     joblinks = driver.find_elements(By.CLASS_NAME, 'cp-info-in')
-    print(len(joblinks))
 
     maxPagelen = driver.find_element(By.CSS_SELECTOR, ".paging_direct").text.split(" ").pop(1)
-    print(mainLink.split("pageIndex").pop(1))
     print(maxPagelen)
-    
+
     # joblinks 반복 처리
     for linkss in joblinks:
         driverDetail = webdriver.Chrome(service=service, options=options)
         
         aTag = linkss.find_element(By.TAG_NAME, "a")
         aTagLink = aTag.get_attribute("href")
+
+        wantedAuth = extract_param_value(aTagLink)+'\n'
+        
+        if os.path.exists(firstfilelink):
+            firstFile = open(firstfilelink, 'r+')
+            lines = firstFile.readlines()
+            
+            if wantedAuth in lines:
+                stopFlag = True
+                break
+            
+            else:
+                firstFile.write(wantedAuth)
+        else:
+            firstFile = open(firstfilelink, 'a')
+            firstFile.write(wantedAuth)
+                
+        firstFile.close()
 
         driverDetail.get(aTagLink)
         
@@ -194,6 +225,9 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
     
     mainLink = mainLink.replace(f"pageIndex={curr-1}", f"pageIndex={curr}")
     driver.close()
+    
+    if stopFlag:
+        break
 
 # 엑셀 저장 및 WebDriver 종료
 workbook.save("C:\jobdata\jobData.xlsx")
