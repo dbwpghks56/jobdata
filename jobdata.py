@@ -59,15 +59,22 @@ answer담당자이메일 = ""
 saveFlag = False
 stopFlag = False
 
-cookiefilelink = "worknetlogin.pkl"
-firstfilelink = "firstInfo.txt"
+cookiefilelink = "C:\jobdata\worknetlogin.pkl"
+firstfilelink = "C:\jobdata\\firstInfo.txt"
 # 기타 변수 정의
 excelPath = "C:\jobdata\jobData.xlsx"
+excelEmailPath = "C:\jobdata\jobDataEmail.xlsx"
+
 workbook = openpyxl.Workbook()
+emailWorkbook = openpyxl.Workbook()
+
 
 # 기존 엑셀 파일이 존재하는 경우 불러오기
 if os.path.exists(excelPath):
     workbook = openpyxl.load_workbook(excelPath)
+
+if os.path.exists(excelEmailPath):
+    workbook = openpyxl.load_workbook(excelEmailPath)
 
 # 엑셀 시트 및 컬럼 설정
 sheet = workbook.active
@@ -91,9 +98,15 @@ sheet['E1'] = "임금조건"
 sheet['F1'] = "담당자 이름"
 sheet['G1'] = "담당자 전화번호"
 sheet['H1'] = "담당자 휴대폰 번호"
-sheet['I1'] = "담당자 이메일"
+sheet['I1'] = "수신자 Email 주소"
 sheet['J1'] = "URL 공고 주소"
 maxPagelen = 12
+
+emailSheet = emailWorkbook.active
+emailSheet.print_options.horizontalCentered = True
+emailSheet.print_options.verticalCentered = True
+emailSheet.column_dimensions['A'].width = 50
+emailSheet['A1'] = "수신자 Email 주소"
 
 currPage = input("검색 시작할 페이지 : ")
 loginRedirectLink = ("https://www.work.go.kr/seekWantedMain.do")
@@ -257,6 +270,9 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
             if saveFlag == True:
                 sheet.append([answer업종, answer직무내용, answer모집인원, answer근무지, answer임금조건,
                                         answer담당자이름, answer담당자전화번호, answer담당자휴대폰, answer담당자이메일, assertResult])
+                emailSheet.append([answer담당자이메일])
+                
+                emailWorkbook.save("C:\jobdata\jobDataEmail.xlsx")
                 workbook.save("C:\jobdata\jobData.xlsx")
                 saveFlag = False
             
@@ -277,6 +293,7 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
 
 # 엑셀 저장 및 WebDriver 종료
 workbook.save("C:\jobdata\jobData.xlsx")
+emailWorkbook.save("C:\jobdata\jobDataEmail.xlsx")
 print("종료")
 
 driverDetail.quit()
