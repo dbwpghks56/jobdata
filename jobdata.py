@@ -74,7 +74,7 @@ if os.path.exists(excelPath):
     workbook = openpyxl.load_workbook(excelPath)
 
 if os.path.exists(excelEmailPath):
-    workbook = openpyxl.load_workbook(excelEmailPath)
+    emailWorkbook = openpyxl.load_workbook(excelEmailPath)
 
 # 엑셀 시트 및 컬럼 설정
 sheet = workbook.active
@@ -272,8 +272,8 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
                                         answer담당자이름, answer담당자전화번호, answer담당자휴대폰, answer담당자이메일, assertResult])
                 emailSheet.append([answer담당자이메일])
                 
-                emailWorkbook.save("C:\jobdata\jobDataEmail.xlsx")
-                workbook.save("C:\jobdata\jobData.xlsx")
+                emailWorkbook.save(excelEmailPath)
+                workbook.save(excelPath)
                 saveFlag = False
             
         except NoSuchElementException as e:
@@ -292,8 +292,8 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
         break
 
 # 엑셀 저장 및 WebDriver 종료
-workbook.save("C:\jobdata\jobData.xlsx")
-emailWorkbook.save("C:\jobdata\jobDataEmail.xlsx")
+workbook.save(excelPath)
+emailWorkbook.save(excelEmailPath)
 print("종료")
 
 driverDetail.quit()
