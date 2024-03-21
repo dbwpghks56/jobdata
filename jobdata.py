@@ -187,6 +187,7 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
             lines = firstFile.readlines()
             
             if wantedAuth in lines:
+                firstFile.write("중복된 데이터가 있습니다.")
                 print("중복된 데이터가 있습니다.")
                 stopFlag = True
                 break
