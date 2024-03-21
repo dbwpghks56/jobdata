@@ -187,7 +187,7 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
             lines = firstFile.readlines()
             
             if wantedAuth in lines:
-                firstFile.write("중복된 데이터가 있습니다.")
+                firstFile.write("duplicated Data \n")
                 print("중복된 데이터가 있습니다.")
                 stopFlag = True
                 break
@@ -270,13 +270,16 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
                             print(assertResult)
 
             if saveFlag == True:
-                sheet.append([answer업종, answer직무내용, answer모집인원, answer근무지, answer임금조건,
-                                        answer담당자이름, answer담당자전화번호, answer담당자휴대폰, answer담당자이메일, assertResult])
-                emailSheet.append([answer담당자이메일])
-                
-                emailWorkbook.save(excelEmailPath)
-                workbook.save(excelPath)
-                saveFlag = False
+                if stopFlag == False:
+                    sheet.append([answer업종, answer직무내용, answer모집인원, answer근무지, answer임금조건,
+                                            answer담당자이름, answer담당자전화번호, answer담당자휴대폰, answer담당자이메일, assertResult])
+                    emailSheet.append([answer담당자이메일])
+                    
+                    emailWorkbook.save(excelEmailPath)
+                    workbook.save(excelPath)
+                    saveFlag = False
+                else:
+                    stopFlag = False
             
         except NoSuchElementException as e:
             print(f"요소를 찾을 수 없습니다. 에러: {e.msg}")
@@ -290,8 +293,8 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
     mainLink = mainLink.replace(f"pageIndex={curr-1}", f"pageIndex={curr}")
     driver.close()
     
-    if stopFlag:
-        break
+    # if stopFlag:
+    #     break
 
 # 엑셀 저장 및 WebDriver 종료
 workbook.save(excelPath)
