@@ -153,148 +153,158 @@ finally:
 
 
 
-driver = webdriver.Chrome(service=service, options=options)
-driver.get(mainLink)
-
-maxPagelen = driver.find_element(By.CSS_SELECTOR, ".paging_direct").text.split(" ").pop(1)
-print(maxPagelen)
-
-driver.close()
-
-# 메인 링크 입력 받기
-for curr in range(int(currPage)+1, int(maxPagelen) + 1):
-    # 메인 WebDriver 생성 및 메인 링크 접속
+try:
     driver = webdriver.Chrome(service=service, options=options)
     driver.get(mainLink)
-
-    # 메인 페이지에서 joblinks 수집
-    joblinks = driver.find_elements(By.CLASS_NAME, 'cp-info-in')
 
     maxPagelen = driver.find_element(By.CSS_SELECTOR, ".paging_direct").text.split(" ").pop(1)
     print(maxPagelen)
 
-    # joblinks 반복 처리
-    for linkss in joblinks:
-        driverDetail = webdriver.Chrome(service=service, options=options)
-        
-        aTag = linkss.find_element(By.TAG_NAME, "a")
-        aTagLink = aTag.get_attribute("href")
-
-        wantedAuth = extract_param_value(aTagLink)+'\n'
-        
-        if os.path.exists(firstfilelink):
-            firstFile = open(firstfilelink, 'r+')
-            lines = firstFile.readlines()
-            
-            if wantedAuth in lines:
-                firstFile.write("duplicated Data \n")
-                print("중복된 데이터가 있습니다.")
-                stopFlag = True
-                break
-            
-            else:
-                firstFile.write(wantedAuth)
-        else:
-            firstFile = open(firstfilelink, 'a')
-            firstFile.write(wantedAuth)
-                
-        firstFile.close()
-        
-        if os.path.exists(cookiefilelink):
-            workCookies = pickle.load(open(cookiefilelink, "rb"))
-            driverDetail.get(loginRedirectLink)
-            driverDetail.delete_all_cookies()
-            
-            for cookie in workCookies:
-                # cookie.pop("domain")
-                driverDetail.add_cookie(cookie)
-
-            driverDetail.get(aTagLink)
-        
-        try:
-            elements_careers_table = set(driverDetail.find_elements(By.CLASS_NAME, 'careers-table'))
-            elements_업종_right = driverDetail.find_element(By.CLASS_NAME, 'right')
-            elements_업종_li = elements_업종_right.find_elements(By.TAG_NAME, "li")
-            elements_업종_strong = elements_업종_right.find_element(By.CLASS_NAME, "info").find_elements(By.TAG_NAME, "strong")
-
-            # 업종 정보 수집
-            for idx, val in enumerate(elements_업종_strong):
-                if val.text == "업종":
-                    answer업종 = elements_업종_li.pop(idx).find_element(By.TAG_NAME, "div").text
-
-            # 나머지 정보 수집
-            for ele in elements_careers_table:
-                tableTh = ele.find_elements(By.TAG_NAME, "th")
-
-                for idx, val in enumerate(tableTh):
-                    if val.text == "직무내용":
-                        answers = ele.find_element(By.TAG_NAME, "td")
-                        answer직무내용 = answers.text
-
-                    if val.text == "모집인원":
-                        answers = ele.find_elements(By.TAG_NAME, "td")
-                        answer모집인원 = answers.pop(idx).text
-
-                    if val.text == "근무예정지":
-                        answers = ele.find_elements(By.TAG_NAME, "td")
-                        answer근무지 = answers.pop(idx).text
-
-                    if val.text == "임금조건":
-                        answers = ele.find_elements(By.TAG_NAME, "td")
-                        answer임금조건 = answers.pop(idx).text
-                        
-                    if val.text == "담당자":
-                        answers = ele.find_elements(By.TAG_NAME, "td")
-                        answer담당자이름 = answers.pop(idx).text
-                        
-                    if val.text == "전화번호":
-                        answers = ele.find_elements(By.TAG_NAME, "td")
-                        answer담당자전화번호 = answers.pop(idx).text
-                        
-                    if val.text == "휴대폰번호":
-                        answers = ele.find_elements(By.TAG_NAME, "td")
-                        answer담당자휴대폰 = answers.pop(idx).text
-                        
-                    if val.text == "이메일":
-                        answers = ele.find_elements(By.TAG_NAME, "td")
-                        answer담당자이메일 = answers.pop(idx).text
-
-                    if val.text == "고용허가제":
-                        answers = ele.find_elements(By.TAG_NAME, "td")
-                        answer고용허가제 = answers.pop(idx).text
-
-                        # 고용허가제가 있을 경우 데이터 저장
-                        if answer고용허가제 != " ":
-                            saveFlag = True
-                            assertResult = aTagLink
-                            print(assertResult)
-
-            if saveFlag == True:
-                if stopFlag == False:
-                    sheet.append([answer업종, answer직무내용, answer모집인원, answer근무지, answer임금조건,
-                                            answer담당자이름, answer담당자전화번호, answer담당자휴대폰, answer담당자이메일, assertResult])
-                    emailSheet.append([answer담당자이메일])
-                    
-                    emailWorkbook.save(excelEmailPath)
-                    workbook.save(excelPath)
-                    saveFlag = False
-                else:
-                    stopFlag = False
-            
-        except NoSuchElementException as e:
-            print(f"요소를 찾을 수 없습니다. 에러: {e.msg}")
-            pass  # 요소를 찾을 수 없으면 패스 
-        except Exception as e2:
-            print(f"에러 요인 {e2}")
-            pass             
-        finally:
-            driverDetail.close()
-    
-    mainLink = mainLink.replace(f"pageIndex={curr-1}", f"pageIndex={curr}")
     driver.close()
-    
-    # if stopFlag:
-    #     break
+
+    # 메인 링크 입력 받기
+    for curr in range(int(currPage)+1, int(maxPagelen) + 1):
+        # 메인 WebDriver 생성 및 메인 링크 접속
+        driver = webdriver.Chrome(service=service, options=options)
+        driver.get(mainLink)
+
+        # 메인 페이지에서 joblinks 수집
+        joblinks = driver.find_elements(By.CLASS_NAME, 'cp-info-in')
+
+        maxPagelen = driver.find_element(By.CSS_SELECTOR, ".paging_direct").text.split(" ").pop(1)
+        print(maxPagelen)
+
+        # joblinks 반복 처리
+        for linkss in joblinks:
+            driverDetail = webdriver.Chrome(service=service, options=options)
+            
+            aTag = linkss.find_element(By.TAG_NAME, "a")
+            aTagLink = aTag.get_attribute("href")
+
+            wantedAuth = extract_param_value(aTagLink)+'\n'
+            
+            if os.path.exists(firstfilelink):
+                firstFile = open(firstfilelink, 'r+')
+                lines = firstFile.readlines()
+                
+                if wantedAuth in lines:
+                    firstFile.write("duplicated Data \n")
+                    print("중복된 데이터가 있습니다.")
+                    stopFlag = True
+                    break
+                
+                else:
+                    firstFile.write(wantedAuth)
+            else:
+                firstFile = open(firstfilelink, 'a')
+                firstFile.write(wantedAuth)
+                    
+            firstFile.close()
+            
+            if os.path.exists(cookiefilelink):
+                workCookies = pickle.load(open(cookiefilelink, "rb"))
+                driverDetail.get(loginRedirectLink)
+                driverDetail.delete_all_cookies()
+                
+                for cookie in workCookies:
+                    # cookie.pop("domain")
+                    driverDetail.add_cookie(cookie)
+
+                driverDetail.get(aTagLink)
+            
+            try:
+                elements_careers_table = set(driverDetail.find_elements(By.CLASS_NAME, 'careers-table'))
+                elements_업종_right = driverDetail.find_element(By.CLASS_NAME, 'right')
+                elements_업종_li = elements_업종_right.find_elements(By.TAG_NAME, "li")
+                elements_업종_strong = elements_업종_right.find_element(By.CLASS_NAME, "info").find_elements(By.TAG_NAME, "strong")
+
+                # 업종 정보 수집
+                for idx, val in enumerate(elements_업종_strong):
+                    if val.text == "업종":
+                        answer업종 = elements_업종_li.pop(idx).find_element(By.TAG_NAME, "div").text
+
+                # 나머지 정보 수집
+                for ele in elements_careers_table:
+                    tableTh = ele.find_elements(By.TAG_NAME, "th")
+
+                    for idx, val in enumerate(tableTh):
+                        if val.text == "직무내용":
+                            answers = ele.find_element(By.TAG_NAME, "td")
+                            answer직무내용 = answers.text
+
+                        if val.text == "모집인원":
+                            answers = ele.find_elements(By.TAG_NAME, "td")
+                            answer모집인원 = answers.pop(idx).text
+
+                        if val.text == "근무예정지":
+                            answers = ele.find_elements(By.TAG_NAME, "td")
+                            answer근무지 = answers.pop(idx).text
+
+                        if val.text == "임금조건":
+                            answers = ele.find_elements(By.TAG_NAME, "td")
+                            answer임금조건 = answers.pop(idx).text
+                            
+                        if val.text == "담당자":
+                            answers = ele.find_elements(By.TAG_NAME, "td")
+                            answer담당자이름 = answers.pop(idx).text
+                            
+                        if val.text == "전화번호":
+                            answers = ele.find_elements(By.TAG_NAME, "td")
+                            answer담당자전화번호 = answers.pop(idx).text
+                            
+                        if val.text == "휴대폰번호":
+                            answers = ele.find_elements(By.TAG_NAME, "td")
+                            answer담당자휴대폰 = answers.pop(idx).text
+                            
+                        if val.text == "이메일":
+                            answers = ele.find_elements(By.TAG_NAME, "td")
+                            answer담당자이메일 = answers.pop(idx).text
+
+                        if val.text == "고용허가제":
+                            answers = ele.find_elements(By.TAG_NAME, "td")
+                            answer고용허가제 = answers.pop(idx).text
+
+                            # 고용허가제가 있을 경우 데이터 저장
+                            if answer고용허가제 != " ":
+                                saveFlag = True
+                                assertResult = aTagLink
+                                print(assertResult)
+
+                if saveFlag == True:
+                    if stopFlag == False:
+                        sheet.append([answer업종, answer직무내용, answer모집인원, answer근무지, answer임금조건,
+                                                answer담당자이름, answer담당자전화번호, answer담당자휴대폰, answer담당자이메일, assertResult])
+                        emailSheet.append([answer담당자이메일])
+                        
+                        emailWorkbook.save(excelEmailPath)
+                        workbook.save(excelPath)
+                        saveFlag = False
+                    else:
+                        stopFlag = False
+                
+            except NoSuchElementException as e:
+                print(f"요소를 찾을 수 없습니다. 에러: {e.msg}")
+                pass  # 요소를 찾을 수 없으면 패스 
+            except Exception as e2:
+                print(f"에러 요인 {e2}")
+                pass             
+            finally:
+                driverDetail.close()
+        
+        mainLink = mainLink.replace(f"pageIndex={curr-1}", f"pageIndex={curr}")
+        driver.close()
+        
+        # if stopFlag:
+        #     break
+except Exception as e:
+    print(f"에러 요인 {e}")
+    pass
+
+finally:
+    driverDetail.quit()
+    loginDriver.quit()
+    driver.quit()
+
 
 # 엑셀 저장 및 WebDriver 종료
 workbook.save(excelPath)
