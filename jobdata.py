@@ -153,17 +153,17 @@ finally:
 
 
 
-try:
-    driver = webdriver.Chrome(service=service, options=options)
-    driver.get(mainLink)
+driver = webdriver.Chrome(service=service, options=options)
+driver.get(mainLink)
 
-    maxPagelen = driver.find_element(By.CSS_SELECTOR, ".paging_direct").text.split(" ").pop(1)
-    print(maxPagelen)
+maxPagelen = driver.find_element(By.CSS_SELECTOR, ".paging_direct").text.split(" ").pop(1)
+print(maxPagelen)
 
-    driver.close()
+driver.close()
 
-    # 메인 링크 입력 받기
-    for curr in range(int(currPage)+1, int(maxPagelen) + 1):
+# 메인 링크 입력 받기
+for curr in range(int(currPage)+1, int(maxPagelen) + 1):
+    try:
         # 메인 WebDriver 생성 및 메인 링크 접속
         driver = webdriver.Chrome(service=service, options=options)
         driver.get(mainLink)
@@ -294,11 +294,19 @@ try:
         mainLink = mainLink.replace(f"pageIndex={curr-1}", f"pageIndex={curr}")
         driver.close()
         
-        # if stopFlag:
-        #     break
-except Exception as e:
-    print(f"에러 요인 {e}")
-    pass
+    except Exception as e:
+        print(f"에러 요인 {e}")
+        pass
+    
+    finally:
+        stopFlag = False
+        time.sleep(1)
+        print(f"현재 페이지 {curr-1} 입니다.")
+        print(f"최대 페이지 {maxPagelen} 입니다.")
+        print("다음 페이지로 이동합니다.")
+    
+    # if stopFlag:
+    #     break
 
 
 # 엑셀 저장 및 WebDriver 종료
