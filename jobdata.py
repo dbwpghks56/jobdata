@@ -300,11 +300,6 @@ except Exception as e:
     print(f"에러 요인 {e}")
     pass
 
-finally:
-    driverDetail.quit()
-    loginDriver.quit()
-    driver.quit()
-
 
 # 엑셀 저장 및 WebDriver 종료
 workbook.save(excelPath)
