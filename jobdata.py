@@ -191,7 +191,6 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
                     firstFile.write("duplicated Data \n")
                     print("중복된 데이터가 있습니다.")
                     stopFlag = True
-                    break
                 
                 else:
                     firstFile.write(wantedAuth)
@@ -289,6 +288,7 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
                 print(f"에러 요인 {e2}")
                 pass             
             finally:
+                stopFlag = False
                 driverDetail.close()
         
         mainLink = mainLink.replace(f"pageIndex={curr-1}", f"pageIndex={curr}")
