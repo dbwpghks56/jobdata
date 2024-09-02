@@ -51,6 +51,8 @@ answer고용허가제 = ""
 answer직무내용 = ""
 answer모집인원 = ""
 answer근무지 = ""
+answer공고일자 = ""
+answer마감일자 = ""
 answer임금조건 = ""
 answer담당자이름 = ""
 answer담당자전화번호 = ""
@@ -83,23 +85,27 @@ sheet.column_dimensions['B'].width = 50
 sheet.column_dimensions['C'].width = 20
 sheet.column_dimensions['D'].width = 20
 sheet.column_dimensions['E'].width = 50
-sheet.column_dimensions['F'].width = 20
-sheet.column_dimensions['G'].width = 20
+sheet.column_dimensions['F'].width = 50
+sheet.column_dimensions['G'].width = 50
 sheet.column_dimensions['H'].width = 20
 sheet.column_dimensions['I'].width = 20
-sheet.column_dimensions['J'].width = 200
+sheet.column_dimensions['J'].width = 20
+sheet.column_dimensions['K'].width = 20
+sheet.column_dimensions['L'].width = 200
 sheet.print_options.horizontalCentered = True
 sheet.print_options.verticalCentered = True
 sheet['A1'] = "업종"
 sheet['B1'] = "직무내용"
 sheet['C1'] = "모집인원"
 sheet['D1'] = "근무지역"
-sheet['E1'] = "임금조건"
-sheet['F1'] = "담당자 이름"
-sheet['G1'] = "담당자 전화번호"
-sheet['H1'] = "담당자 휴대폰 번호"
-sheet['I1'] = "수신자 Email 주소"
-sheet['J1'] = "URL 공고 주소"
+sheet['E1'] = "공고일자"
+sheet['F1'] = "마감일자"
+sheet['G1'] = "임금조건"
+sheet['H1'] = "담당자 이름"
+sheet['I1'] = "담당자 전화번호"
+sheet['J1'] = "담당자 휴대폰 번호"
+sheet['K1'] = "수신자 Email 주소"
+sheet['L1'] = "URL 공고 주소"
 maxPagelen = 12
 
 emailSheet = emailWorkbook.active
@@ -109,6 +115,8 @@ emailSheet.column_dimensions['A'].width = 50
 emailSheet['A1'] = "수신자 Email 주소"
 
 currPage = input("검색 시작할 페이지 : ")
+maxPagelen = input("검색 종료할 페이지 : ")
+
 loginRedirectLink = ("https://www.work.go.kr/seekWantedMain.do")
 loginMainLink = ("https://www.work24.go.kr/cm/z/b/0210/openLginPage.do?refSite=EAE05&refUrl=/g24Api/g24InterfaceSsoLogin.do?refUrl=/seekWantedMain.do")
 mainLink = ("https://www.work.go.kr/empInfo/empInfoSrch/list/dtlEmpSrchList.do?"
@@ -156,9 +164,6 @@ finally:
 driver = webdriver.Chrome(service=service, options=options)
 driver.get(mainLink)
 
-maxPagelen = driver.find_element(By.CSS_SELECTOR, ".paging_direct").text.split(" ").pop(1)
-print(maxPagelen)
-
 driver.close()
 
 # 메인 링크 입력 받기
@@ -170,9 +175,6 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
 
         # 메인 페이지에서 joblinks 수집
         joblinks = driver.find_elements(By.CLASS_NAME, 'cp-info-in')
-
-        maxPagelen = driver.find_element(By.CSS_SELECTOR, ".paging_direct").text.split(" ").pop(1)
-        print(maxPagelen)
 
         # joblinks 반복 처리
         for linkss in joblinks:
@@ -258,6 +260,14 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
                         if val.text == "이메일":
                             answers = ele.find_elements(By.TAG_NAME, "td")
                             answer담당자이메일 = answers.pop(idx).text
+                            
+                        if val.text == "채용공고 등록일시":
+                            answers = ele.find_elements(By.TAG_NAME, "td")
+                            answer공고일자 = answers.pop(idx).text
+                            
+                        if val.text == "접수마감일":
+                            answers = ele.find_elements(By.TAG_NAME, "td")
+                            answer마감일자 = answers.pop(idx).text
 
                         if val.text == "고용허가제":
                             answers = ele.find_elements(By.TAG_NAME, "td")
@@ -271,7 +281,7 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
 
                 if saveFlag == True:
                     if stopFlag == False:
-                        sheet.append([answer업종, answer직무내용, answer모집인원, answer근무지, answer임금조건,
+                        sheet.append([answer업종, answer직무내용, answer모집인원, answer근무지,answer공고일자, answer마감일자, answer임금조건,
                                                 answer담당자이름, answer담당자전화번호, answer담당자휴대폰, answer담당자이메일, assertResult])
                         emailSheet.append([answer담당자이메일])
                         
