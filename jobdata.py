@@ -116,21 +116,25 @@ emailSheet['A1'] = "수신자 Email 주소"
 
 currPage = input("검색 시작할 페이지 : ")
 maxPagelen = input("검색 종료할 페이지 : ")
+cloDateStdt = input("공고 마감 시작일 : ")
+cloDateEndt = input("공고 마감 종료일 : ")
+regDateStdt = input("공고 등록 시작일 : ")
+regDateEndt = input("공고 등록 종료일 : ")
 
 loginRedirectLink = ("https://www.work.go.kr/seekWantedMain.do")
 loginMainLink = ("https://www.work24.go.kr/cm/z/b/0210/openLginPage.do?refSite=EAE05&refUrl=/g24Api/g24InterfaceSsoLogin.do?refUrl=/seekWantedMain.do")
 mainLink = ("https://www.work.go.kr/empInfo/empInfoSrch/list/dtlEmpSrchList.do?"
         "careerTo=&keywordJobCd=&occupation=&templateInfo=&shsyWorkSecd=&rot2WorkYn=&payGbn=&resultCnt=10&keywordJobCont=N"
-        "&cert=&cloDateStdt=&moreCon=more&minPay=&codeDepth2Info=11000&isChkLocCall=&sortFieldInfo=DATE&major="
+        f"&cert=&cloDateStdt={cloDateStdt}&moreCon=more&minPay=&codeDepth2Info=11000&isChkLocCall=&sortFieldInfo=DATE&major="
         "&resrDutyExcYn=&eodwYn=&sortField=DATE&staArea=&sortOrderBy=DESC&keyword=&termSearchGbn=all&carrEssYns="
         "&benefitSrchAndOr=O&disableEmpHopeGbn=&webIsOut=&actServExcYn=&maxPay=&keywordStaAreaNm=N&emailApplyYn="
         "&listCookieInfo=DTL&pageCode=&codeDepth1Info=11000&keywordEtcYn=&publDutyExcYn=&keywordJobCdSeqNo=&exJobsCd="
-        "&templateDepthNmInfo=&computerPreferential=&regDateStdt=&employGbn=&empTpGbcd=&region=&infaYn=&resultCntInfo=10"
-        f"&siteClcd=all&cloDateEndt=&sortOrderByInfo=DESC&currntPageNo=1&indArea=&careerTypes=&searchOn=Y&tlmgYn=&subEmpHopeYn="
+        f"&templateDepthNmInfo=&computerPreferential=&regDateStdt={regDateStdt}&employGbn=&empTpGbcd=&region=&infaYn=&resultCntInfo=10"
+        f"&siteClcd=all&cloDateEndt={cloDateEndt}&sortOrderByInfo=DESC&currntPageNo=1&indArea=&careerTypes=&searchOn=Y&tlmgYn=&subEmpHopeYn="
         "&academicGbn=&templateDepthNoInfo=&foriegn=&mealOfferClcd=&station=&moerButtonYn=&holidayGbn=&srcKeyword="
         "&enterPriseGbn=all&academicGbnoEdu=noEdu&cloTermSearchGbn=all&keywordWantedTitle=N&stationNm=&benefitGbn="
         "&keywordFlag=&notSrcKeyword=&essCertChk=&isEmptyHeader=&depth2SelCode=&_csrf=dde2822b-952e-477d-81c3-17bb0c5d1775"
-        "&keywordBusiNm=N&preferentialGbn=&rot3WorkYn=&pfMatterPreferential=&regDateEndt=&staAreaLineInfo1=11000"
+        f"&keywordBusiNm=N&preferentialGbn=&rot3WorkYn=&pfMatterPreferential=&regDateEndt={regDateEndt}&staAreaLineInfo1=11000"
         f"&staAreaLineInfo2=1&pageIndex={currPage}&termContractMmcnt=&careerFrom=&laborHrShortYn=#viewSPL")
 
 loginDriver = webdriver.Chrome(service=service, options=optionsLogin)
@@ -165,6 +169,10 @@ driver = webdriver.Chrome(service=service, options=options)
 driver.get(mainLink)
 
 driver.close()
+
+if os.path.exists(firstfilelink):
+    firstFile = open(firstfilelink, 'w')  # 'w' 모드는 파일을 비웁니다.
+    firstFile.close()  # 파일을 비운 후에 닫습니다.
 
 # 메인 링크 입력 받기
 for curr in range(int(currPage)+1, int(maxPagelen) + 1):
@@ -313,6 +321,9 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
         time.sleep(1)
         print(f"현재 페이지 {curr-1} 입니다.")
         print(f"최대 페이지 {maxPagelen} 입니다.")
+        if os.path.exists(firstfilelink):
+            firstFile = open(firstfilelink, 'r+')
+            firstFile.write(f"현재 페이지 {curr-1} 입니다.\n")    
         print("다음 페이지로 이동합니다.")
     
     # if stopFlag:
