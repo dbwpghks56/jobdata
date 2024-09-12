@@ -22,6 +22,7 @@ def extract_param_value(url):
     parsed_url = urlparse(url)
     query_params = parse_qs(parsed_url.query)
     
+    # 공고 고유 번호 추출
     if "wantedAuthNo" in query_params:
         return query_params["wantedAuthNo"][0]
     else:
@@ -121,8 +122,13 @@ cloDateEndt = input("공고 마감 종료일 : ")
 regDateStdt = input("공고 등록 시작일 : ")
 regDateEndt = input("공고 등록 종료일 : ")
 
+# 로그인 리다이렉트 URL
 loginRedirectLink = ("https://www.work.go.kr/seekWantedMain.do")
+
+# 로그인 URL
 loginMainLink = ("https://www.work24.go.kr/cm/z/b/0210/openLginPage.do?refSite=EAE05&refUrl=/g24Api/g24InterfaceSsoLogin.do?refUrl=/seekWantedMain.do")
+
+# 검색 페이지 URL
 mainLink = (
     "https://www.work24.go.kr/wk/a/b/1200/retriveDtlEmpSrchList.do?"
     f"basicSetupYn=&careerTo=&keywordJobCd=&occupation=&seqNo=&cloDateEndtParam={cloDateEndt}"
@@ -141,7 +147,7 @@ mainLink = (
     "termContractMmcnt=&careerFrom=&laborHrShortYn="
 )
 
-
+# 로그인 크롬 드라이버 설정
 loginDriver = webdriver.Chrome(service=service, options=optionsLogin)
 
 try:
@@ -157,7 +163,7 @@ try:
     print(loginDriver.current_url)
     
     if loginRedirectLink in loginDriver.current_url and loginDriver.current_url != loginMainLink :
-        print("hello")
+        # 로그인 한 유저 쿠키 정보 파일로 저장
         pickle.dump(loginDriver.get_cookies(), open(cookiefilelink, "wb"))
             
 except Exception as e:
@@ -187,9 +193,10 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
         driver.get(mainLink)
 
         # 메인 페이지에서 joblinks 수집
-        joblinks = driver.find_elements(By.CLASS_NAME, 'cp-info-in')
+        joblinks = driver.find_elements(By.CLASS_NAME, 'link')
 
         # joblinks 반복 처리
+        # 공고 자세히 보기 페이지로 이동
         for linkss in joblinks:
             driverDetail = webdriver.Chrome(service=service, options=options)
             
@@ -215,6 +222,7 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
                     
             firstFile.close()
             
+            # 로그인한 유저 쿠키 파일을 가지고 크롬 드라이버 쿠키에 추가
             if os.path.exists(cookiefilelink):
                 workCookies = pickle.load(open(cookiefilelink, "rb"))
                 driverDetail.get(loginRedirectLink)
@@ -309,7 +317,7 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
                 pass  # 요소를 찾을 수 없으면 패스 
             except Exception as e2:
                 print(f"에러 요인 {e2}")
-                pass             
+                pass
             finally:
                 stopFlag = False
                 driverDetail.close()
