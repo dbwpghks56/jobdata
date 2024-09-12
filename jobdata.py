@@ -123,19 +123,24 @@ regDateEndt = input("공고 등록 종료일 : ")
 
 loginRedirectLink = ("https://www.work.go.kr/seekWantedMain.do")
 loginMainLink = ("https://www.work24.go.kr/cm/z/b/0210/openLginPage.do?refSite=EAE05&refUrl=/g24Api/g24InterfaceSsoLogin.do?refUrl=/seekWantedMain.do")
-mainLink = ("https://www.work.go.kr/empInfo/empInfoSrch/list/dtlEmpSrchList.do?"
-        "careerTo=&keywordJobCd=&occupation=&templateInfo=&shsyWorkSecd=&rot2WorkYn=&payGbn=&resultCnt=10&keywordJobCont=N"
-        f"&cert=&cloDateStdt={cloDateStdt}&moreCon=more&minPay=&codeDepth2Info=11000&isChkLocCall=&sortFieldInfo=DATE&major="
-        "&resrDutyExcYn=&eodwYn=&sortField=DATE&staArea=&sortOrderBy=DESC&keyword=&termSearchGbn=all&carrEssYns="
-        "&benefitSrchAndOr=O&disableEmpHopeGbn=&webIsOut=&actServExcYn=&maxPay=&keywordStaAreaNm=N&emailApplyYn="
-        "&listCookieInfo=DTL&pageCode=&codeDepth1Info=11000&keywordEtcYn=&publDutyExcYn=&keywordJobCdSeqNo=&exJobsCd="
-        f"&templateDepthNmInfo=&computerPreferential=&regDateStdt={regDateStdt}&employGbn=&empTpGbcd=&region=&infaYn=&resultCntInfo=10"
-        f"&siteClcd=all&cloDateEndt={cloDateEndt}&sortOrderByInfo=DESC&currntPageNo=1&indArea=&careerTypes=&searchOn=Y&tlmgYn=&subEmpHopeYn="
-        "&academicGbn=&templateDepthNoInfo=&foriegn=&mealOfferClcd=&station=&moerButtonYn=&holidayGbn=&srcKeyword="
-        "&enterPriseGbn=all&academicGbnoEdu=noEdu&cloTermSearchGbn=all&keywordWantedTitle=N&stationNm=&benefitGbn="
-        "&keywordFlag=&notSrcKeyword=&essCertChk=&isEmptyHeader=&depth2SelCode=&_csrf=dde2822b-952e-477d-81c3-17bb0c5d1775"
-        f"&keywordBusiNm=N&preferentialGbn=&rot3WorkYn=&pfMatterPreferential=&regDateEndt={regDateEndt}&staAreaLineInfo1=11000"
-        f"&staAreaLineInfo2=1&pageIndex={currPage}&termContractMmcnt=&careerFrom=&laborHrShortYn=#viewSPL")
+mainLink = (
+    "https://www.work24.go.kr/wk/a/b/1200/retriveDtlEmpSrchList.do?"
+    f"basicSetupYn=&careerTo=&keywordJobCd=&occupation=&seqNo=&cloDateEndtParam={cloDateEndt}"
+    "&payGbn=&templateInfo=&rot2WorkYn=&shsyWorkSecd=&srcKeywordParam=&resultCnt=10&"
+    "keywordJobCont=N&cert=&moreButtonYn=Y&minPay=&codeDepth2Info=11000&currentPageNo=1&"
+    "eventNo=&mode=&major=&resrDutyExcYn=&eodwYn=&sortField=DATE&staArea=&sortOrderBy=DESC&"
+    "keyword=&termSearchGbn=D-0&carrEssYns=&benefitSrchAndOr=O&disableEmpHopeGbn=&actServExcYn=&"
+    f"keywordStaAreaNm=N&maxPay=&emailApplyYn=&codeDepth1Info=11000&keywordEtcYn=&regDateStdtParam={regDateStdt}&"
+    "publDutyExcYn=&keywordJobCdSeqNo=&viewType=&exJobsCd=&templateDepthNmInfo=&region=&employGbn=&"
+    f"empTpGbcd=&computerPreferential=&infaYn=&cloDateStdtParam={cloDateStdt}&siteClcd=all&searchMode=Y&"
+    "birthFromYY=&indArea=&careerTypes=&subEmpHopeYn=&tlmgYn=&academicGbn=&templateDepthNoInfo=&"
+    "foriegn=&entryRoute=&mealOfferClcd=&basicSetupYnChk=&station=&holidayGbn=&srcKeyword=&"
+    "academicGbnoEdu=noEdu&enterPriseGbn=all&cloTermSearchGbn=D-0&birthToYY=&keywordWantedTitle=N&"
+    "stationNm=&benefitGbn=&notSrcKeywordParam=&keywordFlag=&notSrcKeyword=&essCertChk=&depth2SelCode="
+    f"&keywordBusiNm=N&preferentialGbn=&rot3WorkYn=&regDateEndtParam={regDateEndt}&pfMatterPreferential=&pageIndex={currPage}&"
+    "termContractMmcnt=&careerFrom=&laborHrShortYn="
+)
+
 
 loginDriver = webdriver.Chrome(service=service, options=optionsLogin)
 
@@ -338,3 +343,18 @@ print("종료")
 driverDetail.quit()
 loginDriver.quit()
 driver.quit()
+
+
+#("https://www.work.go.kr/empInfo/empInfoSrch/list/dtlEmpSrchList.do?"
+#"careerTo=&keywordJobCd=&occupation=&templateInfo=&shsyWorkSecd=&rot2WorkYn=&payGbn=&resultCnt=10&keywordJobCont=N"
+#f"&cert=&cloDateStdt={cloDateStdt}&moreCon=more&minPay=&codeDepth2Info=11000&isChkLocCall=&sortFieldInfo=DATE&major="
+#"&resrDutyExcYn=&eodwYn=&sortField=DATE&staArea=&sortOrderBy=DESC&keyword=&termSearchGbn=all&carrEssYns="
+#"&benefitSrchAndOr=O&disableEmpHopeGbn=&webIsOut=&actServExcYn=&maxPay=&keywordStaAreaNm=N&emailApplyYn="
+#"&listCookieInfo=DTL&pageCode=&codeDepth1Info=11000&keywordEtcYn=&publDutyExcYn=&keywordJobCdSeqNo=&exJobsCd="
+#f"&templateDepthNmInfo=&computerPreferential=&regDateStdt={regDateStdt}&employGbn=&empTpGbcd=&region=&infaYn=&resultCntInfo=10"
+#f"&siteClcd=all&cloDateEndt={cloDateEndt}&sortOrderByInfo=DESC&currntPageNo=1&indArea=&careerTypes=&searchOn=Y&tlmgYn=&subEmpHopeYn="
+#"&academicGbn=&templateDepthNoInfo=&foriegn=&mealOfferClcd=&station=&moerButtonYn=&holidayGbn=&srcKeyword="
+#"&enterPriseGbn=all&academicGbnoEdu=noEdu&cloTermSearchGbn=all&keywordWantedTitle=N&stationNm=&benefitGbn="
+#"&keywordFlag=&notSrcKeyword=&essCertChk=&isEmptyHeader=&depth2SelCode=&_csrf=dde2822b-952e-477d-81c3-17bb0c5d1775"
+#f"&keywordBusiNm=N&preferentialGbn=&rot3WorkYn=&pfMatterPreferential=&regDateEndt={regDateEndt}&staAreaLineInfo1=11000"
+#f"&staAreaLineInfo2=1&pageIndex={currPage}&termContractMmcnt=&careerFrom=&laborHrShortYn=#viewSPL")
