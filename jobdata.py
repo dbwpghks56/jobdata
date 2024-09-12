@@ -337,6 +337,7 @@ for curr in range(int(currPage)+1, int(maxPagelen) + 1):
         if os.path.exists(firstfilelink):
             firstFile = open(firstfilelink, 'r+')
             firstFile.write(f"현재 페이지 {curr-1} 입니다.\n")    
+            firstFile.close()
         print("다음 페이지로 이동합니다.")
     
     # if stopFlag:
